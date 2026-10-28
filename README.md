@@ -1,9 +1,9 @@
 # ECE 285 Homework 01 — Variational Autoencoder for Chest X-ray Generation
 
-Implementation of a convolutional Variational Autoencoder (VAE) in PyTorch, trained on the
+A convolutional Variational Autoencoder (VAE) implemented in PyTorch and trained on the
 [Kaggle Chest X-Ray Images (Pneumonia)](https://www.kaggle.com/paultimothymooney/chest-xray-pneumonia)
-dataset to generate 64×64 chest radiographs. Generated images are evaluated with the
-**Frechet Inception Distance (FID)** and the **Inception Score (IS)** using the
+dataset to generate 64×64 chest radiographs. Generated images are evaluated with the **Frechet
+Inception Distance (FID)** and the **Inception Score (IS)** using the
 [pytorch-ignite reference implementation](https://pytorch-ignite.ai/blog/gan-evaluation-with-fid-and-is/).
 
 ## Contents
@@ -11,11 +11,8 @@ dataset to generate 64×64 chest radiographs. Generated images are evaluated wit
 | File | Description |
 |---|---|
 | `hw01.py` | Complete self-contained script: training, generation, FID/IS evaluation, figure export |
-| `HW01_report.tex` | Two-page NeurIPS-format report (LaTeX source) |
-| `ECE_285_HW01_Report.pdf` | Compiled report |
-| `HW01.ipynb` | Development notebook with the full derivation, EDA and extra figures |
-| `neurips_2025.sty` | NeurIPS 2025 style file (required by the report) |
-| `results/` | Metrics (`*.csv`, `metrics_summary.json`) and figures produced by a run |
+| `ECE_285_HW01_Report.pdf` | Two-page report |
+| `results/` | Metrics (`*.csv`, `metrics_summary.json`) and figures from the 50-epoch run |
 
 ## Requirements
 
@@ -26,7 +23,7 @@ conda activate ml
 pip install torch torchvision pytorch-ignite numpy pandas matplotlib pillow scipy
 ```
 
-`pytorch-ignite` is the only dependency beyond a standard PyTorch stack. `scipy` is needed by
+`pytorch-ignite` is the only dependency beyond a standard PyTorch stack. `scipy` is required by
 ignite's FID implementation for the matrix square root.
 
 ## Dataset
@@ -47,8 +44,8 @@ chest_xray/chest_xray/
     test/{NORMAL,PNEUMONIA}/*.jpeg
 ```
 
-The loader locates the directory that directly contains `train/` and `test/`, so no path
-editing is required. The 16-image official `val/` split is **ignored** — see *Method* below.
+The loader locates the directory that directly contains `train/` and `test/`, so no path editing
+is required. The 16-image official `val/` split is **ignored** — see *Method* below.
 
 ## Usage
 
@@ -57,8 +54,8 @@ conda activate ml
 python hw01.py
 ```
 
-One command runs the whole pipeline: training → FID/IS evaluation → figures → export.
-On an Apple Silicon GPU (MPS) the full 50 epochs take about 10 minutes.
+One command runs the whole pipeline: training → FID/IS evaluation → figures → export. On an Apple
+Silicon GPU (MPS) the full 50 epochs take about 10 minutes.
 
 Outputs:
 
@@ -73,14 +70,14 @@ checkpoints/
 ```
 
 To change hyperparameters, edit the `Config` dataclass at the top of `hw01.py`. Every field is
-serialized into each checkpoint, so a saved model can be rebuilt with `load_vae()` without
+serialised into each checkpoint, so a saved model can be rebuilt with `load_vae()` without
 consulting the source.
 
 ## Method
 
 **Model.** A symmetric convolutional VAE with 4 down/up-sampling stages (4×4 kernels, stride 2,
-channel widths 32→64→128→256) and a 128-dimensional latent space, 2.96 M parameters in total.
-The decoder ends in a sigmoid, matching the `[0, 1]` support of the data.
+channel widths 32→64→128→256) and a 128-dimensional latent space, 2.96 M parameters in total. The
+decoder ends in a sigmoid, matching the `[0, 1]` support of the data.
 
 **Objective.** Negative ELBO per image in nats:
 
@@ -89,8 +86,8 @@ L = E_q[-log p(x|z)]  +  β · KL(q(z|x) || N(0, I))
 ```
 
 with a factorised Bernoulli likelihood (BCE summed over pixels, divided by the batch size) and a
-closed-form Gaussian KL. `β` is ramped linearly from 0 to 1 over the first 10 epochs, which is the
-standard remedy for early posterior collapse.
+closed-form Gaussian KL. `β` is ramped linearly from 0 to 1 over the first 10 epochs, the standard
+remedy for early posterior collapse.
 
 **Data.** 5,863 AP/PA radiographs, officially split 5,216 / 16 / 624. Because the official
 validation split has only 16 images, it is discarded and a **class-stratified 90/10 split** of the
@@ -132,10 +129,10 @@ carries very little information about a 4,096-pixel image.
 Three issues are easy to get wrong on this stack and are handled explicitly:
 
 1. **Device split for the metrics.** `pytorch-ignite` accumulates FID/IS statistics in `float64`,
-   which Apple MPS does not implement. The metrics therefore live on the CPU, while the
+   which Apple MPS does not implement. The metrics therefore live on the CPU while the
    27 M-parameter InceptionV3 forward pass stays on the GPU; only the `(N, 2048)` feature matrix
-   crosses devices. `ignite` unconditionally calls `feature_extractor.to(metric_device)`, so a
-   small `DeviceLockedExtractor` wrapper is used to keep the network where it was built.
+   crosses devices. Ignite unconditionally calls `feature_extractor.to(metric_device)`, so a small
+   `DeviceLockedExtractor` wrapper keeps the network where it was built.
 
 2. **`InceptionScore` input.** It consumes only the generated images, while `FID.update` expects
    `(generated, real)` in that order.

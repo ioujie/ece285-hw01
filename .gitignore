@@ -34,3 +34,8 @@ venv/
 # Course materials (not part of the submission)
 Homework_1.pdf
 2021-08-11-GAN-evaluation-using-FID-and-IS.ipynb
+
+# Source files kept out of the public repo (report ships as PDF)
+HW01.ipynb
+HW01_report.tex
+neurips_2025.sty
