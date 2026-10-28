@@ -16,15 +16,14 @@ Inception Distance (FID)** and the **Inception Score (IS)** using the
 
 ## Requirements
 
-Python 3.11 with PyTorch. The code was developed in a conda environment named `ml`:
+Python 3.10+ with the following packages:
 
-```bash
-conda activate ml
-pip install torch torchvision pytorch-ignite numpy pandas matplotlib pillow scipy
+```
+torch  torchvision  pytorch-ignite  numpy  pandas  matplotlib  pillow  scipy
 ```
 
-`pytorch-ignite` is the only dependency beyond a standard PyTorch stack. `scipy` is required by
-ignite's FID implementation for the matrix square root.
+`pytorch-ignite` provides the FID and Inception Score implementations, and `scipy` is required by
+its FID metric for the matrix square root.
 
 ## Dataset
 
@@ -50,7 +49,6 @@ is required. The 16-image official `val/` split is **ignored** — see *Method* 
 ## Usage
 
 ```bash
-conda activate ml
 python hw01.py
 ```
 
