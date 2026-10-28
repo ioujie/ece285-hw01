@@ -1,0 +1,36 @@
+# Dataset (2.4 GB) -- download from Kaggle, see README
+chest_xray/
+__MACOSX/
+
+# Model checkpoints (34 MB each) -- regenerate by running hw01.py
+checkpoints/
+
+# Per-epoch sample grids -- regenerate by running hw01.py
+results/samples/
+
+# Python
+__pycache__/
+*.py[cod]
+.ipynb_checkpoints/
+*.egg-info/
+.venv/
+venv/
+
+# LaTeX build artefacts
+*.aux
+*.log
+*.out
+*.toc
+*.bbl
+*.blg
+*.synctex.gz
+*.fls
+*.fdb_latexmk
+
+# macOS
+.DS_Store
+._*
+
+# Course materials (not part of the submission)
+Homework_1.pdf
+2021-08-11-GAN-evaluation-using-FID-and-IS.ipynb
